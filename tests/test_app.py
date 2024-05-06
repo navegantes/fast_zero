@@ -63,7 +63,7 @@ def test_read_invalid_user(client):
     response = client.get('/users/0')  # Act
 
     assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
-    assert response.json() == {"detail": "User not found"}
+    assert response.json() == {'detail': 'User not found'}
 
 
 def test_update_user(client):
@@ -95,7 +95,7 @@ def test_update_invalid_user(client):
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {"detail": "User not found"}
+    assert response.json() == {'detail': 'User not found'}
 
 
 def test_delete_user(client):
@@ -109,4 +109,4 @@ def test_delete_invalid_user(client):
     response = client.delete('/users/0')  # Act
 
     assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
-    assert response.json() == {"detail": "User not found"}
+    assert response.json() == {'detail': 'User not found'}
