@@ -1,6 +1,9 @@
 from http import HTTPStatus
 
+from jwt import decode
+
 from fast_zero.schemas import UserPublic
+from fast_zero.security import ALGORITHM, SECRET_KEY
 
 
 def test_root_deve_retornar_ok_e_ola_mundo(client):
@@ -102,34 +105,6 @@ def test_delete_user(client, user, token):
     assert response.json() == {'message': 'User deleted'}
 
 
-# def test_read_invalid_user(client):
-#     response = client.get('/users/0')  # Act
-
-#     assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
-#     assert response.json() == {'detail': 'User not found'}
-
-
-# def test_update_invalid_user(client):
-#     response = client.put(
-#         '/users/0',
-#         json={
-#             'username': 'Test User',
-#             'email': 'test@email.com',
-#             'password': 'new_123456',
-#         },
-#     )
-
-#     assert response.status_code == HTTPStatus.NOT_FOUND
-#     assert response.json() == {'detail': 'User not found'}
-
-
-# def test_delete_invalid_user(client):
-#     response = client.delete('/users/0')  # Act
-
-#     assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
-#     assert response.json() == {'detail': 'User not found'}
-
-
 def test_get_token(client, user):
     response = client.post(
         '/token',
@@ -140,3 +115,18 @@ def test_get_token(client, user):
     assert response.status_code == HTTPStatus.OK
     assert 'access_token' in token
     assert 'token_type' in token
+
+
+def test_credential_exception(client, user, token):
+    response = client.put(
+        f'/users/{user.id}',
+        headers={'Authorization': 'Bearer INVALID-TOKEN'},
+        data={'username': 'Invalid_User', 'email': 'test_user@email.com'},
+    )
+
+    resp = response.json()
+    payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    username: str = payload.get('sub')
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert username not in resp
