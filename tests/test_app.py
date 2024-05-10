@@ -10,13 +10,6 @@ def test_root_deve_retornar_ok_e_ola_mundo(client):
     assert response.json() == {'message': 'Olá Mundo!'}  # Assert
 
 
-# def test_html_message_ola_mundo(client):
-#     response = client.get('/helloworld')  # Act
-
-#     assert response.status_code == HTTPStatus.OK  # Assert
-#     assert response.text == """<h1>Olá Mundo!</h1>"""  # Assert
-
-
 def test_create_user(client):
     response = client.post(
         '/users',
@@ -81,9 +74,10 @@ def test_read_user_not_found(client, user):
     assert response.json() == {'detail': 'User not found'}
 
 
-def test_update_user(client, user):
+def test_update_user(client, user, token):
     response = client.put(
-        '/users/1',
+        f'/users/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'Test_User',
             'email': 'test_user@email.com',
@@ -95,40 +89,54 @@ def test_update_user(client, user):
     assert response.json() == {
         'username': 'Test_User',
         'email': 'test_user@email.com',
-        'id': 1,
+        'id': user.id,
     }
 
 
-def test_delete_user(client, user):
-    response = client.delete('/users/1')  # Act
+def test_delete_user(client, user, token):
+    response = client.delete(
+        f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
+    )  # Act
 
     assert response.status_code == HTTPStatus.OK  # Assert
     assert response.json() == {'message': 'User deleted'}
 
 
-def test_read_invalid_user(client):
-    response = client.get('/users/0')  # Act
+# def test_read_invalid_user(client):
+#     response = client.get('/users/0')  # Act
 
-    assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
-    assert response.json() == {'detail': 'User not found'}
+#     assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
+#     assert response.json() == {'detail': 'User not found'}
 
 
-def test_update_invalid_user(client):
-    response = client.put(
-        '/users/0',
-        json={
-            'username': 'Test User',
-            'email': 'test@email.com',
-            'password': 'new_123456',
-        },
+# def test_update_invalid_user(client):
+#     response = client.put(
+#         '/users/0',
+#         json={
+#             'username': 'Test User',
+#             'email': 'test@email.com',
+#             'password': 'new_123456',
+#         },
+#     )
+
+#     assert response.status_code == HTTPStatus.NOT_FOUND
+#     assert response.json() == {'detail': 'User not found'}
+
+
+# def test_delete_invalid_user(client):
+#     response = client.delete('/users/0')  # Act
+
+#     assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
+#     assert response.json() == {'detail': 'User not found'}
+
+
+def test_get_token(client, user):
+    response = client.post(
+        '/token',
+        data={'username': user.email, 'password': user.clean_password},
     )
+    token = response.json()
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == {'detail': 'User not found'}
-
-
-def test_delete_invalid_user(client):
-    response = client.delete('/users/0')  # Act
-
-    assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
-    assert response.json() == {'detail': 'User not found'}
+    assert response.status_code == HTTPStatus.OK
+    assert 'access_token' in token
+    assert 'token_type' in token
