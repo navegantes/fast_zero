@@ -64,13 +64,13 @@ def test_delete_user(client, user, token):
 
 
 def test_read_one_user(client, user):
-    response = client.get('/users/1')  # Act
+    response = client.get(f'/users/{user.id}')  # Act
 
     assert response.status_code == HTTPStatus.OK  # Assert
     assert response.json() == {
-        'username': 'Test_User',
-        'email': 'test_user@email.com',
-        'id': 1,
+        'username': user.username,
+        'email': user.email,
+        'id': user.id,
     }
 
 
@@ -85,11 +85,35 @@ def test_duplicated_user(client, user):
     response = client.post(
         '/users',
         json={
-            'username': 'Test_User',
-            'email': 'test_user@email.com',
-            'password': '123456',
+            'username': user.username,
+            'email': user.email,
+            'password': 'testtest',
         },
     )  # Act
 
     assert response.status_code == HTTPStatus.BAD_REQUEST  # Assert
     assert response.json() == {'detail': 'Username already registered'}
+
+
+def test_update_user_with_wrong_user(client, other_user, token):
+    response = client.put(
+        f'/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'Test_User',
+            'email': 'test_user@email.com',
+            'password': 'new_123456',
+        },
+    )  # Act
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST  # Assert
+    assert response.json() == {'detail': 'Not enough permissions'}
+
+
+def test_delete_user_wrong_user(client, other_user, token):
+    response = client.delete(
+        f'/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Not enough permissions'}

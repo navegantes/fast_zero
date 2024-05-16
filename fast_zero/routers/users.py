@@ -20,7 +20,7 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
-def create_user(user: UserSchema, session: Session):
+def create_user(user: UserSchema, session: Session):  # type: ignore
     db_user = session.scalar(
         select(User).where(User.username == user.username)
     )
@@ -45,7 +45,7 @@ def create_user(user: UserSchema, session: Session):
 
 @router.get('/', response_model=UserList)
 def read_users(
-    session: Session,
+    session: Session,  # type: ignore
     skip: int = 0,
     limit: int = 100,
 ):
@@ -54,7 +54,7 @@ def read_users(
 
 
 @router.get('/{user_id}', response_model=UserPublic)
-def read_user(user_id: int, session: Session):
+def read_user(user_id: int, session: Session):  # type: ignore
     db_user = session.scalar(select(User).where(User.id == user_id))
 
     if not db_user:
@@ -69,7 +69,7 @@ def read_user(user_id: int, session: Session):
 def update_user(
     user_id: int,
     user: UserSchema,
-    session: Session,
+    session: Session,  # type: ignore
     current_user: CurrentUser,
 ):
     if current_user.id != user_id:
@@ -96,7 +96,7 @@ def update_user(
 @router.delete('/{user_id}', response_model=Message)
 def delete_user(
     user_id: int,
-    session: Session,
+    session: Session,  # type: ignore
     current_user: CurrentUser,
 ):
     if current_user.id != user_id:
