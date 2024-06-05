@@ -11,9 +11,9 @@ def test_create_user(client):
             'email': 'test@email.com',
             'password': '123456',
         },
-    )  # Act
+    )
 
-    assert response.status_code == HTTPStatus.CREATED  # Assert
+    assert response.status_code == HTTPStatus.CREATED
     assert response.json() == {
         'username': 'Test User',
         'email': 'test@email.com',
@@ -22,9 +22,9 @@ def test_create_user(client):
 
 
 def test_read_users(client):
-    response = client.get('/users')  # Act
+    response = client.get('/users')
 
-    assert response.status_code == HTTPStatus.OK  # Assert
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {'users': []}
 
 
@@ -44,9 +44,9 @@ def test_update_user(client, user, token):
             'email': 'test_user@email.com',
             'password': 'new_123456',
         },
-    )  # Act
+    )
 
-    assert response.status_code == HTTPStatus.OK  # Assert
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         'username': 'Test_User',
         'email': 'test_user@email.com',
@@ -57,16 +57,16 @@ def test_update_user(client, user, token):
 def test_delete_user(client, user, token):
     response = client.delete(
         f'/users/{user.id}', headers={'Authorization': f'Bearer {token}'}
-    )  # Act
+    )
 
-    assert response.status_code == HTTPStatus.OK  # Assert
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'User deleted'}
 
 
 def test_read_one_user(client, user):
-    response = client.get(f'/users/{user.id}')  # Act
+    response = client.get(f'/users/{user.id}')
 
-    assert response.status_code == HTTPStatus.OK  # Assert
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {
         'username': user.username,
         'email': user.email,
@@ -75,9 +75,9 @@ def test_read_one_user(client, user):
 
 
 def test_read_user_not_found(client, user):
-    response = client.get('/users/2')  # Act
+    response = client.get('/users/2')
 
-    assert response.status_code == HTTPStatus.NOT_FOUND  # Assert
+    assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == {'detail': 'User not found'}
 
 
@@ -89,9 +89,9 @@ def test_duplicated_user(client, user):
             'email': user.email,
             'password': 'testtest',
         },
-    )  # Act
+    )
 
-    assert response.status_code == HTTPStatus.BAD_REQUEST  # Assert
+    assert response.status_code == HTTPStatus.BAD_REQUEST
     assert response.json() == {'detail': 'Username already registered'}
 
 
@@ -104,9 +104,9 @@ def test_update_user_with_wrong_user(client, other_user, token):
             'email': 'test_user@email.com',
             'password': 'new_123456',
         },
-    )  # Act
+    )
 
-    assert response.status_code == HTTPStatus.BAD_REQUEST  # Assert
+    assert response.status_code == HTTPStatus.BAD_REQUEST
     assert response.json() == {'detail': 'Not enough permissions'}
 
 
